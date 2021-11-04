@@ -3,69 +3,20 @@
 namespace App\Controller;
 
 use App\Entity\FoodEntry;
-use App\Repository\FoodEntryRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Annotations as OA;
 
 /**
+ * Provide CRUD for food entries
  * @Route("/api/food_entries", name="food_entry")
  */
-class FoodEntryController extends AbstractController
+class FoodEntryController extends BaseController
 {
     /**
-     * Simplified version of authentication (instead of the base symfony security bundle)
-     * @var array[]
-     */
-    private $users = [
-      'abc1' => [ 'id' => 1, 'username' => 'Marco', 'limit' => 2400, 'isAdmin' => false ],
-      'abc2' => [ 'id' => 2, 'username' => 'John', 'limit' => 2000, 'isAdmin' => false ],
-      'abc3' => [ 'id' => 3, 'username' => 'Admin', 'limit' => 1200, 'isAdmin' => true ],
-    ];
-
-    private SerializerInterface $serializer;
-    private ValidatorInterface $validator;
-
-    public function __construct(ValidatorInterface $validator, SerializerInterface $serializer)
-    {
-        $this->validator = $validator;
-        $this->serializer = $serializer;
-    }
-
-    /**
-     * @Route("/me", methods="GET", name="user_get")
-     */
-    public function userAction(): Response
-    {
-        $user = $this->getUser();
-
-        return $this->json($user);
-    }
-
-    /**
-     * @Route("/users", methods="GET", name="users_get")
-     */
-    public function usersAction(): Response
-    {
-        $user = $this->getUser();
-        if (!$user['isAdmin']) {
-            throw new AccessDeniedHttpException("Only admins");
-        }
-
-        $users = [];
-        foreach($this->users as $token => $user) {
-            $users[] = $user;
-        }
-
-        return $this->json($users);
-    }
-
-    /**
+     * Retrieve a food entry
      * @Route("/{id}", methods="GET", requirements={"id"="\d+"}, name="food_entry_get")
      */
     public function getAction(int $id): Response
@@ -87,57 +38,7 @@ class FoodEntryController extends AbstractController
     }
 
     /**
-     * @Route("/calories", methods="GET", name="food_entry_calories")
-     */
-    public function caloriesAction(Request $request): Response
-    {
-        $user = $this->getUser();
-
-        $from = new \DateTime($request->get('from', '-7 days'));
-        $from->setTime(0, 0);
-        $to = new \DateTime($request->get('to', 'now'));
-        $to->setTime(23, 59);
-
-        $entries = $this->getDoctrine()
-            ->getRepository(FoodEntry::class)
-            ->getCalories($user['id'], $from, $to);
-
-        return $this->json(['limit' => $user['limit'], 'entries' => $entries]);
-    }
-
-    /**
-     * @Route("/stats", methods="GET", name="food_entry_stats")
-     */
-    public function statsAction(Request $request): Response
-    {
-        $user = $this->getUser();
-        if (!$user['isAdmin']) {
-            throw new AccessDeniedHttpException("Only admins");
-        }
-
-        /** @var FoodEntryRepository $repo */
-        $repo = $this->getDoctrine()->getRepository(FoodEntry::class);
-
-        $result = [];
-
-        $from = new \DateTime('-7 days');
-        $from->setTime(0, 0);
-        $to = new \DateTime('now');
-
-        $result['entriesLast7Days'] = $repo->statsEntries($from, $to);
-        $result['averageCaloriesPerUser'] = $repo->statsCalories($from, $to);
-
-        $fromLastWeek = new \DateTime('-15 days');
-        $fromLastWeek->setTime(0, 0);
-        $toLastWeek = new \DateTime('-8 days');
-        $toLastWeek->setTime(23, 59);
-
-        $result['entriesLastWeek'] = $repo->statsEntries($fromLastWeek, $toLastWeek);
-
-        return $this->json($result);
-    }
-
-    /**
+     * Update a food entry
      * @Route("/{id}", methods="PUT", requirements={"id"="\d+"}, name="food_entry_put")
      */
     public function putAction(int $id, Request $request): Response
@@ -147,6 +48,7 @@ class FoodEntryController extends AbstractController
     }
 
     /**
+     * Create a new food entry
      * @Route("/", methods="POST", name="food_entry_post")
      */
     public function postAction(Request $request): Response
@@ -156,6 +58,7 @@ class FoodEntryController extends AbstractController
     }
 
     /**
+     * Delete a food entry
      * @Route("/{id}", methods="DELETE", requirements={"id"="\d+"}, name="food_entry_delete")
      */
     public function deleteAction(int $id, Request $request): Response
@@ -183,7 +86,11 @@ class FoodEntryController extends AbstractController
     }
 
     /**
-     * @Route("/", name="food_entry_get_all")
+     * List all food entries in the period for the user
+     * @Route("/", methods="GET", name="food_entry_get_all")
+     *
+     * @OA\Parameter(name="from", in="query", @OA\Schema(type="string"))
+     * @OA\Parameter(name="to", in="query", @OA\Schema(type="string"))
      */
     public function getAllAction(Request $request): Response
     {
@@ -201,22 +108,26 @@ class FoodEntryController extends AbstractController
     }
 
     /**
-     * Simpler version of the base getUser symfony method
+     * Get the daily count of calories
+     * @Route("/calories", methods="GET", name="food_entry_calories")
+     *
+     * @OA\Parameter(name="from", in="query", @OA\Schema(type="string"))
+     * @OA\Parameter(name="to", in="query", @OA\Schema(type="string"))
      */
-    protected function getUser() {
-        /** @var Request $request */
-        $request = $this->get('request_stack')->getCurrentRequest();
-        $token = $request->get('token', $request->headers->get('Authorization'));
-        if (empty($token) || empty($this->users[$token])) {
-            throw new AccessDeniedHttpException("No user found");
-        }
-        return $this->users[$token];
-    }
+    public function caloriesAction(Request $request): Response
+    {
+        $user = $this->getUser();
 
-    protected function checkEntryAuth($user, FoodEntry $entry) {
-        if (!$user['isAdmin'] && $user['id'] != $entry->getUser()) {
-            throw $this->createNotFoundException("No food entry found for id {$entry->getId()}");
-        }
+        $from = new \DateTime($request->get('from', '-7 days'));
+        $from->setTime(0, 0);
+        $to = new \DateTime($request->get('to', 'now'));
+        $to->setTime(23, 59);
+
+        $entries = $this->getDoctrine()
+            ->getRepository(FoodEntry::class)
+            ->getCalories($user['id'], $from, $to);
+
+        return $this->json(['limit' => $user['limit'], 'entries' => $entries]);
     }
 
     protected function replace(Request $request, $id = null): FoodEntry

@@ -37,18 +37,12 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import {
-  State,
-  Getter,
-  Action,
-  Mutation,
-  namespace
-} from 'vuex-class'
+import { State, Action, Mutation } from 'vuex-class'
 
-@Component({
-  components: {
-  },
-})
+/**
+ * Main entry point with layout, navigation and login/logout
+ */
+@Component({})
 export default class App extends Vue {
   @State token;
 

@@ -14,11 +14,15 @@ export default new Vuex.Store({
     calories: [],
     stats: [],
     users: [],
+    entry: null,
   },
   mutations: {
     setIsAdmin(state, isAdmin) {
       state.isAdmin = isAdmin;
       localStorage.setItem('isAdmin', isAdmin);
+    },
+    setEntry(state, entry) {
+      state.entry = entry;
     },
     setUsers(state, users) {
       state.users = users;
@@ -51,23 +55,20 @@ export default new Vuex.Store({
         state.dateTo =  moment().format();
         state.isAdmin = false;
         state.users = [];
+        state.entry = null;
       }
     }
   },
   actions: {
     async getUser({ commit, state }, token) {
       axios.defaults.headers.common['Authorization'] = token;
-      const response = await axios.get('/api/food_entries/me');
-      if (response.data.isAdmin) {
-        const usersResp = await axios.get('/api/food_entries/users');
-        commit('setUsers', usersResp.data);
-      }
+      const response = await axios.get('/api/users/me');
       commit('setIsAdmin', response.data.isAdmin);
       commit('setToken', token);
     },
     async getUsers({ commit, state }) {
       if (state.isAdmin) {
-        const usersResp = await axios.get('/api/food_entries/users');
+        const usersResp = await axios.get('/api/users/');
         commit('setUsers', usersResp.data);
       }
     },
@@ -95,7 +96,7 @@ export default new Vuex.Store({
     getStats({ commit, state }) {
       if (!state.isAdmin) return;
 
-      axios.get('/api/food_entries/stats')
+      axios.get('/api/admin/stats')
           .then(response => {
             commit('setStats', response.data)
           })

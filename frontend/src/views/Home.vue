@@ -21,7 +21,7 @@
       <b-badge :variant="cycleColor(key)" class="mr-2" v-for="(user, key) in stats.averageCaloriesPerUser">{{ user.user }}: {{ user.calories }}</b-badge>
     </div>
 
-    <b-table striped hover :items="foodEntries" :fields="fields">
+    <b-table v-if="foodEntries.length" striped hover :items="foodEntries" :fields="fields">
       <template #cell(eatDate)="data">
         <span :id="'tooltip-target-' + data.item.id">
           {{ new Date(data.item.eatDate) | moment("from", "now") }}
@@ -36,6 +36,9 @@
         <b-button variant="danger" @click="onDeleteEntry(data.item.id)">X</b-button>
       </template>
     </b-table>
+    <div v-else class="m-4">
+      <h4>No results found</h4>
+    </div>
 
     <b-modal id="modal-entry" hide-footer>
       <template #modal-title>

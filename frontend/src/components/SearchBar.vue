@@ -9,19 +9,25 @@
       <b-form-datepicker id="example-datepicker1" v-model="newDateFrom" :max="newDateFromMax" :state="newDateValid" class="mb-2 mr-sm-2 mb-sm-0"></b-form-datepicker>
     </b-form-group>
     <b-form-datepicker id="example-datepicker2" v-model="newDateTo" :max="newDateToMax" :state="newDateValid" class="mb-2 mr-sm-2 mb-sm-0"></b-form-datepicker>
-    <b-button type="submit" class="mr-2" variant="primary">Search</b-button>
-    - <b-button @click="createNew" class="ml-2" variant="success">Add Food Entry</b-button>
+    <b-button type="submit" class="mr-2" variant="primary"><b-icon-search class="mr-2" />Search</b-button>
+    - <b-button @click="createNew" class="ml-2" variant="success"><b-icon-plus-square class="mr-2" />Add Food Entry</b-button>
   </b-form>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { State, Action, Mutation } from 'vuex-class'
+import { BIconPlusSquare, BIconSearch } from 'bootstrap-vue'
 
 /**
  * Search top bar
  */
-@Component({})
+@Component({
+  components: {
+    BIconSearch,
+    BIconPlusSquare
+  }
+})
 export default class SearchBar extends Vue {
   @State dateFrom;
   @State dateTo;

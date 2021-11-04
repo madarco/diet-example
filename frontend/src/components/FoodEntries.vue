@@ -13,9 +13,13 @@
       <template #cell(user)="data">
         {{ getUsername(data.item.user) }}
       </template>
+      <template #cell(skipDiet)="data">
+        <b-icon-check-square-fill v-if="data.item.skipDiet" variant="success"></b-icon-check-square-fill>
+        <b-icon-x-square-fill v-else variant="danger"></b-icon-x-square-fill>
+      </template>
       <template #cell(actions)="data">
-        <b-button variant="info" @click="onEdit(data.item)" class="mr-1">Edit</b-button>
-        <b-button variant="danger" @click="onDeleteEntry(data.item.id)">X</b-button>
+        <b-button variant="info" @click="onEdit(data.item)" class="mr-1"><b-icon-pencil-square></b-icon-pencil-square></b-button>
+        <b-button variant="danger" @click="onDeleteEntry(data.item.id)"><b-icon-trash></b-icon-trash></b-button>
       </template>
     </b-table>
     <div v-else class="m-4">
@@ -28,11 +32,19 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { State, Action, Mutation } from 'vuex-class'
 import moment from 'moment';
+import { BIconPencilSquare, BIconTrash, BIconCheckSquareFill, BIconXSquareFill } from 'bootstrap-vue'
 
 /**
  * Components to handle the table with the list of entries
  */
-@Component({})
+@Component({
+  components: {
+    BIconTrash,
+    BIconPencilSquare,
+    BIconCheckSquareFill,
+    BIconXSquareFill
+  }
+})
 export default class FoodEntries extends Vue {
   @State foodEntries;
   @State calories;

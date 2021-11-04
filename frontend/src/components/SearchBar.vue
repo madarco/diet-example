@@ -38,6 +38,8 @@ export default class SearchBar extends Vue {
   @Mutation setDateFrom
   @Mutation setDateTo
 
+  @Mutation setEntry
+
   @State isAdmin;
 
   get newDateFrom() {
@@ -71,6 +73,7 @@ export default class SearchBar extends Vue {
   }
 
   createNew() {
+    this.setEntry(null);
     this.$bvModal.show('modal-entry');
   }
 

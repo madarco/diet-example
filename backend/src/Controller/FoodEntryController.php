@@ -23,9 +23,9 @@ class FoodEntryController extends AbstractController
      * @var array[]
      */
     private $users = [
-      'abc1' => [ 'id' => 1, 'limit' => 2400, 'isAdmin' => false ],
-      'abc2' => [ 'id' => 2, 'limit' => 2000, 'isAdmin' => false ],
-      'abc3' => [ 'id' => 3, 'limit' => 1200, 'isAdmin' => true ],
+      'abc1' => [ 'id' => 1, 'username' => 'Marco', 'limit' => 2400, 'isAdmin' => false ],
+      'abc2' => [ 'id' => 2, 'username' => 'John', 'limit' => 2000, 'isAdmin' => false ],
+      'abc3' => [ 'id' => 3, 'username' => 'Admin', 'limit' => 1200, 'isAdmin' => true ],
     ];
 
     private SerializerInterface $serializer;
@@ -57,7 +57,12 @@ class FoodEntryController extends AbstractController
             throw new AccessDeniedHttpException("Only admins");
         }
 
-        return $this->json(array_column($this->users, 'id'));
+        $users = [];
+        foreach($this->users as $token => $user) {
+            $users[] = $user;
+        }
+
+        return $this->json($users);
     }
 
     /**

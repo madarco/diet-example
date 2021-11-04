@@ -65,6 +65,12 @@ export default new Vuex.Store({
       commit('setIsAdmin', response.data.isAdmin);
       commit('setToken', token);
     },
+    async getUsers({ commit, state }) {
+      if (state.isAdmin) {
+        const usersResp = await axios.get('/api/food_entries/users');
+        commit('setUsers', usersResp.data);
+      }
+    },
     getFoodEntries({ commit, state }) {
       const params = {
         from: moment(state.dateFrom).startOf('day').format(),

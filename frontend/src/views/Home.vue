@@ -18,7 +18,7 @@
     <div v-if="isAdmin && stats">
       Entries this week: {{ stats.entriesLast7Days }} - Past week: {{ stats.entriesLastWeek }}<br />
       Calories per User:
-      <b-badge :variant="cycleColor(key)" class="mr-2" v-for="(user, key) in stats.averageCaloriesPerUser">{{ user.user }}: {{ user.calories }}</b-badge>
+      <b-badge :variant="cycleColor(key)" class="mr-2" v-for="(user, key) in stats.averageCaloriesPerUser">{{ getUsername(user.user) }}: {{ user.calories }}</b-badge>
     </div>
 
     <b-table v-if="foodEntries.length" striped hover :items="foodEntries" :fields="fields">
@@ -30,6 +30,9 @@
         <b-tooltip :target="'tooltip-target-' + data.item.id" triggers="hover">
           {{ new Date(data.item.eatDate) }}
         </b-tooltip>
+      </template>
+      <template #cell(user)="data">
+        {{ getUsername(data.item.user) }}
       </template>
       <template #cell(actions)="data">
         <b-button variant="info" @click="onEdit(data.item)" class="mr-1">Edit</b-button>
@@ -51,6 +54,8 @@
                 id="input-1"
                 v-model="form.user"
                 :options="users"
+                value-field="id"
+                text-field="username"
                 required
             ></b-form-select>
           </b-form-group>
@@ -126,6 +131,7 @@ export default class Home extends Vue {
   @Action getFoodEntries;
   @Action getCalories;
   @Action getStats;
+  @Action getUsers;
   @Action deleteEntry;
   @Action updateEntry;
   @Action createEntry;
@@ -173,6 +179,7 @@ export default class Home extends Vue {
     this.search();
     if (this.isAdmin) {
       this.getStats();
+      this.getUsers();
     }
   }
 
@@ -261,6 +268,11 @@ export default class Home extends Vue {
 
   get newDateToMax() {
     return new Date();
+  }
+
+  getUsername(id) {
+    const user = this.users.find(u => u.id == id);
+    if (user) return user.username;
   }
 
   cycleColor(key) {

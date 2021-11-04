@@ -38,6 +38,29 @@ class FoodEntryController extends AbstractController
     }
 
     /**
+     * @Route("/me", methods="GET", name="user_get")
+     */
+    public function userAction(): Response
+    {
+        $user = $this->getUser();
+
+        return $this->json($user);
+    }
+
+    /**
+     * @Route("/users", methods="GET", name="users_get")
+     */
+    public function usersAction(): Response
+    {
+        $user = $this->getUser();
+        if (!$user['isAdmin']) {
+            throw new AccessDeniedHttpException("Only admins");
+        }
+
+        return $this->json(array_column($this->users, 'id'));
+    }
+
+    /**
      * @Route("/{id}", methods="GET", requirements={"id"="\d+"}, name="food_entry_get")
      */
     public function getAction(int $id): Response
@@ -232,7 +255,7 @@ class FoodEntryController extends AbstractController
 
         // Admin can change user:
         if ($user['isAdmin']) {
-            if (empty(array_column($this->users, 'id')[$update->getUser()])) {
+            if (!in_array($update->getUser(), array_column($this->users, 'id')) ) {
                 throw new BadRequestHttpException("user: User {$update->getUser()} not found");
             }
             $entry->setUser($update->getUser());

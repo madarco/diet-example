@@ -91,15 +91,16 @@ class FoodEntryRepository extends ServiceEntityRepository
     }
 
     /**
-     * @return mixed Returns the number of calories and users in the timespan
+     * @return mixed Returns the stats
      */
     public function statsCalories(\DateTime $dateFrom, \DateTime $dateTo)
     {
         $conn = $this->getEntityManager()->getConnection();
 
         $sql = '
-            SELECT SUM(f.calories) as calories, COUNT(f.user) as users FROM food_entry f
+            SELECT f.user, SUM(f.calories) as calories, COUNT(f.user) as users FROM food_entry f
             WHERE f.eat_date >= :dateFrom AND f.eat_date <= :dateTo
+            GROUP BY f.user
             ';
         $stmt = $conn->prepare($sql);
         $result = $stmt->executeQuery([
@@ -107,10 +108,6 @@ class FoodEntryRepository extends ServiceEntityRepository
             'dateTo' => $dateTo->format(\DateTimeInterface::ISO8601 )
         ]);
 
-        $result = $result->fetchAssociative();
-        if (!empty($result['users']) && !empty($result['calories'])) {
-            return round($result['calories'] / $result['users']);
-        }
-        return 0;
+        return $result->fetchAllAssociative();
     }
 }

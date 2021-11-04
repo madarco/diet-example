@@ -8,20 +8,18 @@
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
           <b-nav-item to="/">Home</b-nav-item>
-          <b-nav-item to="/">Add</b-nav-item>
-          <b-nav-item to="/about">Stats</b-nav-item>
         </b-navbar-nav>
 
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
-          <b-nav-item href="#" @click="setToken('')">Logout</b-nav-item>
+          <b-nav-item href="#" @click="logout()">Logout</b-nav-item>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>
 
     <b-container>
       <router-view v-if="token"/>
-      <b-form @submit="setToken(newToken)" v-else>
+      <b-form @submit.prevent="login(newToken)" v-else>
         <b-form-group
                       id="fieldset-1"
                       label="Enter your token"
@@ -57,9 +55,26 @@ export default class App extends Vue {
   newToken = "";
 
   @Mutation setToken;
+  @Mutation setIsAdmin;
+  @Action getUser;
 
   mounted() {
-    this.setToken(localStorage.getItem('token'));
+    this.login(null);
+  }
+
+  login(token) {
+    if (!token) {
+      this.setIsAdmin(localStorage.getItem('isAdmin') === 'true');
+      this.setToken(localStorage.getItem('token'));
+    }
+    else {
+      this.getUser(token);
+    }
+  }
+
+  logout() {
+    this.setIsAdmin(false);
+    this.setToken('');
   }
 }
 </script>

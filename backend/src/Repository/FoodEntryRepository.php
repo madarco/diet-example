@@ -98,7 +98,7 @@ class FoodEntryRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
 
         $sql = '
-            SELECT f.user, SUM(f.calories) as calories, COUNT(f.user) as users FROM food_entry f
+            SELECT f.user, SUM(f.calories) / 7 as calories, COUNT(f.id) as entries FROM food_entry f
             WHERE f.eat_date >= :dateFrom AND f.eat_date <= :dateTo
             GROUP BY f.user
             ';

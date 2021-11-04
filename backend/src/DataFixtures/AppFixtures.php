@@ -10,14 +10,25 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        $entry = new FoodEntry();
-        $entry->setName("Bread");
-        $entry->setEatDate(new \DateTime());
-        $entry->setCalories(500);
-        $entry->setSkipDiet(false);
-        $entry->setUser(1);
-        $manager->persist($entry);
+        for($u=1; $u <= 2; $u++) {
+            $date = new \DateTime();
+            for ($c = 0; $c < 20; $c++) {
+                $this->createEntity($manager, $u, $date, $u == 2? [1000] : [500, 1000, 2000]);
+                $date->modify("-1 day");
+            }
+        }
+    }
 
+    protected function createEntity($manager, $user, $date, $calories) {
+        $names = ['Bread', 'Meat', 'Pasta', 'Panino', 'Cake', 'Hamburger'];
+
+        $entry = new FoodEntry();
+        $entry->setName($names[array_rand($names)]);
+        $entry->setEatDate($date);
+        $entry->setCalories($calories[array_rand($calories)]);
+        $entry->setSkipDiet(false);
+        $entry->setUser($user);
+        $manager->persist($entry);
         $manager->flush();
     }
 }

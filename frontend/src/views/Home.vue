@@ -77,7 +77,7 @@
 
           <b-form-group id="input-group-2" label="When:" label-for="input-4">
             <b-form-datepicker id="input-4" v-model="form.date" :max="newDateToMax" class="mb-2"></b-form-datepicker>
-            <b-form-timepicker v-model="form.time" locale="en" now-button></b-form-timepicker>
+            <b-form-timepicker v-model="form.time" locale="en" :state="validateTime" now-button></b-form-timepicker>
           </b-form-group>
 
           <b-form-group id="input-group-4" v-slot="{ ariaDescribedby }">
@@ -92,7 +92,7 @@
             </b-form-checkbox>
           </b-form-group>
 
-          <b-button type="submit" class="mr-2" variant="primary">Submit</b-button>
+          <b-button type="submit" class="mr-2" variant="primary" :disabled="!validateTime">Submit</b-button>
           <b-button type="reset" @click="$bvModal.hide('modal-entry')" variant="danger">Cancel</b-button>
         </b-form>
       </div>
@@ -198,6 +198,10 @@ export default class Home extends Vue {
     Object.keys(this.DEFAULT_FORM).forEach(k => this.form[k] = this.DEFAULT_FORM[k]);
   }
 
+  get validateTime() {
+    return moment(moment(this.form.date).format('YYYY-MM-DD') + ' ' + this.form.time).isBefore();
+  }
+
   onEdit(entry) {
     this.resetForm();
     this.form.id = entry.id;
@@ -240,7 +244,7 @@ export default class Home extends Vue {
   }
 
   dayOverLimit(date) {
-    if (!this.calories || this.isAdmin) return false;
+    if (!this.calories || !this.calories.entries || this.isAdmin) return false;
 
     const dateString = moment(date).format("YYYY-MM-DD");
     const entry = this.calories.entries.find(e => e.dateDay == dateString);

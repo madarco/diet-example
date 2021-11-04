@@ -13,6 +13,9 @@
       <template #cell(user)="data">
         {{ getUsername(data.item.user) }}
       </template>
+      <template #cell(calories)="data">
+        {{ new Intl.NumberFormat().format(data.item.calories) }}
+      </template>
       <template #cell(skipDiet)="data">
         <b-icon-check-square-fill v-if="data.item.skipDiet" variant="success"></b-icon-check-square-fill>
         <b-icon-x-square-fill v-else variant="danger"></b-icon-x-square-fill>

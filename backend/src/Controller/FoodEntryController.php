@@ -120,16 +120,16 @@ class FoodEntryController extends AbstractController
 
         $result = [];
 
-        $from = new \DateTime($request->get('from', '-7 days'));
+        $from = new \DateTime('-7 days');
         $from->setTime(0, 0);
-        $to = new \DateTime($request->get('to', 'now'));
+        $to = new \DateTime('now');
 
         $result['entriesLast7Days'] = $repo->statsEntries($from, $to);
         $result['averageCaloriesPerUser'] = $repo->statsCalories($from, $to);
 
-        $fromLastWeek = new \DateTime($request->get('from', '-14 days'));
+        $fromLastWeek = new \DateTime('-14 days');
         $fromLastWeek->setTime(0, 0);
-        $toLastWeek = new \DateTime($request->get('to', '-8 days'));
+        $toLastWeek = new \DateTime('-8 days');
         $toLastWeek->setTime(23, 59);
 
         $result['entriesLastWeek'] = $repo->statsEntries($fromLastWeek, $toLastWeek);

@@ -94,11 +94,8 @@ export default new Vuex.Store({
     },
     getStats({ commit, state }) {
       if (!state.isAdmin) return;
-      const params = {
-        from: moment(state.dateFrom).startOf('day').format(),
-        to:  moment(state.dateTo).endOf('day').format(),
-      }
-      axios.get('/api/food_entries/stats', { params })
+
+      axios.get('/api/food_entries/stats')
           .then(response => {
             commit('setStats', response.data)
           })
